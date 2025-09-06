@@ -22,8 +22,14 @@ export function Layout({ children }: LayoutProps) {
     );
   }
 
-  if (!user || !profile) {
-    return <Navigate to="/auth" replace />;
+  // The ProtectedRoute component already handles authentication check
+  // but we still need to check for profile since that's loaded separately
+  if (!profile) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
   }
 
   if (!profile.is_approved && profile.role === 'student') {
