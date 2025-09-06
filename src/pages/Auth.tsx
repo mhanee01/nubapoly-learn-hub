@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -12,8 +12,16 @@ import { Loader2, GraduationCap } from 'lucide-react';
 
 export default function Auth() {
   const [loading, setLoading] = useState(false);
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, user, session } = useAuth();
   const navigate = useNavigate();
+
+  // Redirect to dashboard when user is authenticated
+  useEffect(() => {
+    if (user && session) {
+      setLoading(false);
+      navigate('/dashboard');
+    }
+  }, [user, session, navigate]);
 
   const [signInData, setSignInData] = useState({
     email: '',
@@ -42,12 +50,13 @@ export default function Auth() {
           description: error.message,
           variant: "destructive"
         });
+        setLoading(false);
       } else {
         toast({
           title: "Success",
           description: "Signed in successfully!"
         });
-        navigate('/dashboard');
+        // Don't navigate here - let the auth state change handle it
       }
     } catch (error) {
       toast({
@@ -55,7 +64,6 @@ export default function Auth() {
         description: "An unexpected error occurred",
         variant: "destructive"
       });
-    } finally {
       setLoading(false);
     }
   };
