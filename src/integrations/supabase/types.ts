@@ -419,6 +419,10 @@ export type Database = {
         Args: { user_uuid: string }
         Returns: Database["public"]["Enums"]["user_role"]
       }
+      is_lecturer_or_admin: {
+        Args: { check_user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       user_role: "student" | "lecturer" | "admin"

@@ -30,88 +30,131 @@ export default function Dashboard() {
 
   const fetchDashboardData = async () => {
     if (!profile) return;
-
+    
+    setLoading(true);
     try {
       if (profile.role === 'student') {
-        // Fetch student dashboard data
-        const { data: enrollments } = await supabase
-          .from('enrollments')
-          .select('course_id, courses(*)')
-          .eq('student_id', profile.id);
+        // Optimize: Use parallel queries for student data
+        const [enrollmentsResult, announcementsResult] = await Promise.all([
+          supabase
+            .from('enrollments')
+            .select(`
+              course_id,
+              courses(id, title)
+            `)
+            .eq('student_id', profile.id),
+          supabase
+            .from('announcements')
+            .select(`
+              id, title, content, created_at, is_pinned,
+              courses(title)
+            `)
+            .order('created_at', { ascending: false })
+            .limit(5)
+        ]);
 
-        const { data: assignments } = await supabase
-          .from('assignments')
-          .select('*')
-          .in('course_id', enrollments?.map(e => e.course_id) || []);
-
-        const { data: announcements } = await supabase
-          .from('announcements')
-          .select('*, courses(title)')
-          .in('course_id', enrollments?.map(e => e.course_id) || [])
-          .order('created_at', { ascending: false })
-          .limit(5);
+        const courseIds = enrollmentsResult.data?.map(e => e.course_id) || [];
+        
+        // Only fetch assignments if there are enrolled courses
+        const assignmentsResult = courseIds.length > 0 
+          ? await supabase
+              .from('assignments')
+              .select('id, title, due_date, course_id')
+              .in('course_id', courseIds)
+          : { data: [] };
 
         setStats({
-          totalCourses: enrollments?.length || 0,
-          totalAssignments: assignments?.length || 0,
+          totalCourses: enrollmentsResult.data?.length || 0,
+          totalAssignments: assignmentsResult.data?.length || 0,
           totalStudents: 0,
-          recentAnnouncements: announcements || []
+          recentAnnouncements: announcementsResult.data || []
         });
+
       } else if (profile.role === 'lecturer') {
-        // Fetch lecturer dashboard data
-        const { data: courses } = await supabase
-          .from('courses')
-          .select('*')
-          .eq('lecturer_id', profile.id);
+        // Optimize: Use parallel queries for lecturer data
+        const [coursesResult, announcementsResult] = await Promise.all([
+          supabase
+            .from('courses')
+            .select('id, title, code')
+            .eq('lecturer_id', profile.id),
+          supabase
+            .from('announcements')
+            .select(`
+              id, title, content, created_at, is_pinned,
+              courses(title)
+            `)
+            .eq('lecturer_id', profile.id)
+            .order('created_at', { ascending: false })
+            .limit(5)
+        ]);
 
-        const { data: assignments } = await supabase
-          .from('assignments')
-          .select('*')
-          .in('course_id', courses?.map(c => c.id) || []);
+        const courseIds = coursesResult.data?.map(c => c.id) || [];
+        
+        // Parallel fetch of assignments and enrollments if there are courses
+        const promises = [];
+        if (courseIds.length > 0) {
+          promises.push(
+            supabase
+              .from('assignments')
+              .select('id')
+              .in('course_id', courseIds),
+            supabase
+              .from('enrollments')
+              .select('student_id')
+              .in('course_id', courseIds)
+          );
+        } else {
+          promises.push(
+            Promise.resolve({ data: [] }),
+            Promise.resolve({ data: [] })
+          );
+        }
 
-        const { data: enrollments } = await supabase
-          .from('enrollments')
-          .select('student_id')
-          .in('course_id', courses?.map(c => c.id) || []);
-
-        const { data: announcements } = await supabase
-          .from('announcements')
-          .select('*, courses(title)')
-          .eq('lecturer_id', profile.id)
-          .order('created_at', { ascending: false })
-          .limit(5);
+        const [assignmentsResult, enrollmentsResult] = await Promise.all(promises);
 
         setStats({
-          totalCourses: courses?.length || 0,
-          totalAssignments: assignments?.length || 0,
-          totalStudents: new Set(enrollments?.map(e => e.student_id)).size || 0,
-          recentAnnouncements: announcements || []
+          totalCourses: coursesResult.data?.length || 0,
+          totalAssignments: assignmentsResult.data?.length || 0,
+          totalStudents: new Set(enrollmentsResult.data?.map(e => e.student_id)).size || 0,
+          recentAnnouncements: announcementsResult.data || []
         });
+
       } else if (profile.role === 'admin') {
-        // Fetch admin dashboard data
-        const { data: courses } = await supabase
-          .from('courses')
-          .select('*');
-
-        const { data: users } = await supabase
-          .from('profiles')
-          .select('*');
-
-        const { data: announcements } = await supabase
-          .from('announcements')
-          .select('*, courses(title), profiles(first_name, last_name)')
-          .order('created_at', { ascending: false })
-          .limit(5);
+        // Optimize: Use parallel queries for admin data
+        const [coursesResult, usersResult, announcementsResult] = await Promise.all([
+          supabase
+            .from('courses')
+            .select('id, title'),
+          supabase
+            .from('profiles')
+            .select('id, role')
+            .eq('role', 'student'),
+          supabase
+            .from('announcements')
+            .select(`
+              id, title, content, created_at, is_pinned,
+              courses(title)
+            `)
+            .order('created_at', { ascending: false })
+            .limit(5)
+        ]);
 
         setStats({
-          totalCourses: courses?.length || 0,
-          totalAssignments: 0,
-          totalStudents: users?.filter(u => u.role === 'student').length || 0,
-          recentAnnouncements: announcements || []
+          totalCourses: coursesResult.data?.length || 0,
+          totalAssignments: 0, // Admin doesn't need assignment count for performance
+          totalStudents: usersResult.data?.length || 0,
+          recentAnnouncements: announcementsResult.data || []
         });
       }
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
+      // Set empty stats on error to prevent infinite loading
+      setStats({
+        totalCourses: 0,
+        totalAssignments: 0,
+        totalStudents: 0,
+        recentAnnouncements: []
+      });
     } finally {
       setLoading(false);
     }
