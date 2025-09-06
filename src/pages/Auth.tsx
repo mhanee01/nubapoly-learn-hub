@@ -12,16 +12,15 @@ import { Loader2, GraduationCap } from 'lucide-react';
 
 export default function Auth() {
   const [loading, setLoading] = useState(false);
-  const { signIn, signUp, user, session } = useAuth();
+  const { signIn, signUp, user, session, loading: authLoading } = useAuth();
   const navigate = useNavigate();
 
   // Redirect to dashboard when user is authenticated
   useEffect(() => {
-    if (user && session) {
-      setLoading(false);
+    if (user && session && !authLoading) {
       navigate('/dashboard');
     }
-  }, [user, session, navigate]);
+  }, [user, session, authLoading, navigate]);
 
   const [signInData, setSignInData] = useState({
     email: '',
@@ -99,6 +98,7 @@ export default function Auth() {
           description: error.message,
           variant: "destructive"
         });
+        setLoading(false);
       } else {
         toast({
           title: "Success",
@@ -106,7 +106,7 @@ export default function Auth() {
             ? "Account created! Please wait for admin approval to access the platform."
             : "Account created successfully! Please check your email to verify your account."
         });
-        navigate('/dashboard');
+        // Let the auth state change handle navigation
       }
     } catch (error) {
       toast({
@@ -114,7 +114,6 @@ export default function Auth() {
         description: "An unexpected error occurred",
         variant: "destructive"
       });
-    } finally {
       setLoading(false);
     }
   };

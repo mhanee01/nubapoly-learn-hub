@@ -12,18 +12,7 @@ interface LayoutProps {
 }
 
 export function Layout({ children }: LayoutProps) {
-  const auth = useAuth();
-  
-  // Destructure after ensuring auth is available
-  if (!auth) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
-  
-  const { user, profile, signOut, loading } = auth;
+  const { user, profile, signOut, loading } = useAuth();
 
   if (loading) {
     return (

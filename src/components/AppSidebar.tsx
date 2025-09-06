@@ -27,17 +27,10 @@ import {
 } from 'lucide-react';
 
 export function AppSidebar() {
-  const auth = useAuth();
+  const { profile } = useAuth();
   const { state } = useSidebar();
   const location = useLocation();
   const currentPath = location.pathname;
-
-  // Guard clause to ensure auth is available
-  if (!auth?.profile) {
-    return null;
-  }
-  
-  const { profile } = auth;
 
   const isActive = (path: string) => currentPath === path;
   const getNavCls = ({ isActive }: { isActive: boolean }) =>
