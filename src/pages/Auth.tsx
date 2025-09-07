@@ -102,9 +102,7 @@ export default function Auth() {
       } else {
         toast({
           title: "Success",
-          description: signUpData.role === 'student' 
-            ? "Account created! Please wait for admin approval to access the platform."
-            : "Account created successfully! Please check your email to verify your account."
+          description: "Account created successfully! You can now sign in to access the platform."
         });
         // Let the auth state change handle navigation
       }
@@ -200,7 +198,6 @@ export default function Auth() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="student">Student</SelectItem>
-                      <SelectItem value="lecturer">Lecturer</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

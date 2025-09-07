@@ -45,25 +45,7 @@ export function AppSidebar() {
     if (profile?.role === 'student') {
       return [
         ...commonItems,
-        { title: 'Courses', url: '/courses', icon: BookOpen },
-        { title: 'Assignments', url: '/assignments', icon: ClipboardList },
-        { title: 'Grades', url: '/grades', icon: Award },
-        { title: 'Materials', url: '/materials', icon: FileText },
-        { title: 'Forum', url: '/forum', icon: MessageSquare },
-        { title: 'Carryover', url: '/carryover', icon: Calendar },
-      ];
-    }
-
-    if (profile?.role === 'lecturer') {
-      return [
-        ...commonItems,
-        { title: 'My Courses', url: '/my-courses', icon: BookOpen },
-        { title: 'Create Course', url: '/create-course', icon: GraduationCap },
-        { title: 'Assignments', url: '/manage-assignments', icon: ClipboardList },
-        { title: 'Students', url: '/students', icon: Users },
-        { title: 'Materials', url: '/upload-materials', icon: Upload },
-        { title: 'Forum', url: '/forum', icon: MessageSquare },
-        { title: 'Analytics', url: '/analytics', icon: BarChart3 },
+        // Student-only features can be added here in the future
       ];
     }
 
@@ -71,11 +53,6 @@ export function AppSidebar() {
       return [
         ...commonItems,
         { title: 'Users', url: '/users', icon: Users },
-        { title: 'Courses', url: '/all-courses', icon: BookOpen },
-        { title: 'Enrollments', url: '/enrollments', icon: GraduationCap },
-        { title: 'Analytics', url: '/analytics', icon: BarChart3 },
-        { title: 'Reports', url: '/reports', icon: FileText },
-        { title: 'Settings', url: '/settings', icon: Settings },
       ];
     }
 

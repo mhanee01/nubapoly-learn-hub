@@ -8,7 +8,7 @@ interface Profile {
   email: string;
   first_name: string;
   last_name: string;
-  role: 'student' | 'lecturer' | 'admin';
+  role: 'student' | 'admin';
   is_approved: boolean;
   avatar_url?: string;
   bio?: string;
