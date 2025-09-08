@@ -16,16 +16,10 @@ import Grades from "./pages/Grades";
 import Forum from "./pages/Forum";
 import MyCourses from "./pages/MyCourses";
 import CreateCourse from "./pages/CreateCourse";
+import Recommendations from "./pages/Recommendations";
 import NotFound from "./pages/NotFound";
 import Uploads from "./pages/Uploads";
-import { Chatbot } from "./components/Chatbot";
 import { useAuth } from "@/hooks/useAuth";
-
-const ChatbotGate = () => {
-  const { user } = useAuth();
-  if (!user) return null;
-  return <Chatbot />;
-};
 
 const queryClient = new QueryClient();
 
@@ -49,6 +43,7 @@ const App = () => (
             <Route path="/uploads" element={<Layout><Uploads /></Layout>} />
             <Route path="/forum" element={<Layout><Forum /></Layout>} />
             <Route path="/carryover" element={<Layout><Assignments /></Layout>} />
+            <Route path="/recommendations" element={<Layout><Recommendations /></Layout>} />
 
             {/* Lecturer Routes */}
             <Route path="/my-courses" element={<Layout><MyCourses /></Layout>} />
@@ -68,7 +63,6 @@ const App = () => (
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
-          <ChatbotGate />
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>

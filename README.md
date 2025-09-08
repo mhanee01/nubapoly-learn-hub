@@ -1,73 +1,116 @@
-# Welcome to your Lovable project
+# SPY Elearning system
 
-## Project info
+An e-learning platform for students, lecturers, and admins with courses, assignments, uploads, recommendations, and a built-in learning assistant chatbot.
 
-**URL**: https://lovable.dev/projects/d9ad79c8-1743-48d8-bf41-240ddc4bf9cc
+## Features
+- Authentication with Supabase
+  - Email/password signup and login
+  - Student access without manual approval gate
+- Role-aware UI (student, lecturer, admin)
+- Dashboard with quick stats and navigation
+- Courses and Assignments pages (placeholders ready to extend)
+- Student uploads
+  - Personal file uploads to Supabase Storage (bucket: `user-uploads`)
+  - List/download/delete
+- Assignment submission
+  - Submit files per assignment; stored in `user-uploads` and recorded in `submissions`
+- AI chatbot (client-side helper)
+  - Appears only when logged in
+  - Quick guidance on navigation and file actions
+- Recommendations (collaborative filtering)
+  - Separate Node/Express service returns recommended courseIds per user
+  - Caching and popularity fallback
+  - React hook and page to display recommended courses
 
-## How can I edit this code?
+## Tech Stack
+- Frontend: React + TypeScript + Vite + Tailwind + shadcn-ui
+- Auth/DB/Storage: Supabase
+- Recommendations API: Node.js + Express
 
-There are several ways of editing your application.
+## Data Model (key tables)
+- `profiles` (id, user_id, email, first_name, last_name, role, is_approved, ...)
+- `courses` (id, title, description, ...)
+- `assignments` (id, course_id, title, due_date, max_points, ...)
+- `submissions` (id, assignment_id, student_id, file_url, grade, ...)
 
-**Use Lovable**
+## App Pages and Routes
+- `/` Landing
+- `/auth` Sign in / Sign up
+- `/dashboard` Main dashboard
+- `/courses`, `/assignments`, `/grades`, `/forum` (placeholders, ready to extend)
+- `/uploads` Personal file uploads manager
+- `/recommendations` Recommended courses for the logged-in user
+- Lecturer/Admin: `/my-courses`, `/create-course`, `/students`, `/analytics`, `/users`, etc.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/d9ad79c8-1743-48d8-bf41-240ddc4bf9cc) and start prompting.
+## Sidebar
+- Student: Dashboard, Courses, Assignments, Grades, Materials, My Uploads, Forum, Recommendations, Carryover
+- Lecturer: Dashboard, My Courses, Create Course, Assignments, Students, Materials, Forum, Analytics
+- Admin: Dashboard, Users
 
-Changes made via Lovable will be committed automatically to this repo.
+## Getting Started (Local Development)
 
-**Use your preferred IDE**
+### Prerequisites
+- Node.js 18+
+- npm 9+
+- Supabase project configured (client is set in `src/integrations/supabase/client.ts`)
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### 1) Start the Frontend (React)
+From the project root:
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+```bash
+npm install
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+- App runs on http://localhost:5173 (or as printed by your dev server)
+- Log in/sign up, then use the sidebar to navigate (Dashboard, Courses, Recommendations, etc.)
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### 2) Start the Recommendations API (Node/Express)
+From the `server/` directory:
 
-**Use GitHub Codespaces**
+```bash
+cd server
+npm install
+npm start
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+- API listens on http://localhost:4000
+- Endpoint: `GET /api/recommendations/:userId` → returns array of `{ courseId, score }`
+- In-memory caching (5 minutes) and fallback to popular courses when no similar users are found
 
-## What technologies are used for this project?
+#### (Optional) Seed sample data for local testing
+Use curl or Postman to seed ratings and courses:
 
-This project is built with:
+```bash
+# Seed ratings (users × courses with ratings)
+curl -X POST http://localhost:4000/api/seed/ratings \
+  -H "Content-Type: application/json" \
+  -d '[
+    { "userId": 1, "courseId": 101, "rating": 5 },
+    { "userId": 1, "courseId": 102, "rating": 4 },
+    { "userId": 2, "courseId": 101, "rating": 3 },
+    { "userId": 2, "courseId": 103, "rating": 5 }
+  ]'
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+# Seed courses metadata (ids should match above)
+curl -X POST http://localhost:4000/api/seed/courses \
+  -H "Content-Type: application/json" \
+  -d '[
+    { "id": 101, "title": "Intro to Programming" },
+    { "id": 102, "title": "Data Structures" },
+    { "id": 103, "title": "Databases" }
+  ]'
+```
 
-## How can I deploy this project?
+## Where recommendations appear in the UI
+- Hook: `src/hooks/useRecommendations.ts`
+- Page: `src/pages/Recommendations.tsx`
+- Route: `/recommendations` in `src/App.tsx`
+- Sidebar link (student role): `src/components/AppSidebar.tsx`
 
-Simply open [Lovable](https://lovable.dev/projects/d9ad79c8-1743-48d8-bf41-240ddc4bf9cc) and click on Share -> Publish.
 
-## Can I connect a custom domain to my Lovable project?
 
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+## Notes / Troubleshooting
+- If recommendations return empty, seed ratings/courses (above) or ensure Supabase `courses` table contains matching ids used by the API.
+- Frontend expects the API at `http://localhost:4000`. To change, pass a custom base to `useRecommendations(baseUrl)`.
+- Ensure a Supabase Storage bucket named `user-uploads` exists and is publicly readable for file links.

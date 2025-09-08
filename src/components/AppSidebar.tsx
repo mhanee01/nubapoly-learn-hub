@@ -42,40 +42,39 @@ export function AppSidebar() {
       { title: 'Dashboard', url: '/dashboard', icon: Home },
     ];
 
-    if (profile?.role === 'student') {
-      return [
-        ...commonItems,
-        { title: 'Courses', url: '/courses', icon: BookOpen },
-        { title: 'Assignments', url: '/assignments', icon: ClipboardList },
-        { title: 'Grades', url: '/grades', icon: Award },
-        { title: 'Materials', url: '/materials', icon: FileText },
-        { title: 'My Uploads', url: '/uploads', icon: Upload },
-        { title: 'Forum', url: '/forum', icon: MessageSquare },
-        { title: 'Carryover', url: '/carryover', icon: Calendar },
-      ];
+    const role = profile?.role as 'student' | 'lecturer' | 'admin' | undefined;
+    switch (role) {
+      case 'student':
+        return [
+          ...commonItems,
+          { title: 'Courses', url: '/courses', icon: BookOpen },
+          { title: 'Assignments', url: '/assignments', icon: ClipboardList },
+          { title: 'Grades', url: '/grades', icon: Award },
+          { title: 'Materials', url: '/materials', icon: FileText },
+          { title: 'My Uploads', url: '/uploads', icon: Upload },
+          { title: 'Forum', url: '/forum', icon: MessageSquare },
+          { title: 'Recommendations', url: '/recommendations', icon: BookOpen },
+          { title: 'Carryover', url: '/carryover', icon: Calendar },
+        ];
+      case 'lecturer':
+        return [
+          ...commonItems,
+          { title: 'My Courses', url: '/my-courses', icon: BookOpen },
+          { title: 'Create Course', url: '/create-course', icon: GraduationCap },
+          { title: 'Assignments', url: '/manage-assignments', icon: ClipboardList },
+          { title: 'Students', url: '/students', icon: Users },
+          { title: 'Materials', url: '/upload-materials', icon: Upload },
+          { title: 'Forum', url: '/forum', icon: MessageSquare },
+          { title: 'Analytics', url: '/analytics', icon: BarChart3 },
+        ];
+      case 'admin':
+        return [
+          ...commonItems,
+          { title: 'Users', url: '/users', icon: Users },
+        ];
+      default:
+        return commonItems;
     }
-
-    if (profile?.role === 'lecturer') {
-      return [
-        ...commonItems,
-        { title: 'My Courses', url: '/my-courses', icon: BookOpen },
-        { title: 'Create Course', url: '/create-course', icon: GraduationCap },
-        { title: 'Assignments', url: '/manage-assignments', icon: ClipboardList },
-        { title: 'Students', url: '/students', icon: Users },
-        { title: 'Materials', url: '/upload-materials', icon: Upload },
-        { title: 'Forum', url: '/forum', icon: MessageSquare },
-        { title: 'Analytics', url: '/analytics', icon: BarChart3 },
-      ];
-    }
-
-    if (profile?.role === 'admin') {
-      return [
-        ...commonItems,
-        { title: 'Users', url: '/users', icon: Users },
-      ];
-    }
-
-    return commonItems;
   };
 
   const navigationItems = getNavigationItems();
