@@ -41,7 +41,7 @@ export function Layout({ children }: LayoutProps) {
             <div className="flex items-center gap-4">
               <SidebarTrigger />
               <div>
-                <h1 className="font-semibold">Nubapoly E-Learning System</h1>
+                <h1 className="font-semibold">SPY Elearning system</h1>
                 <p className="text-sm text-muted-foreground capitalize">{profile.role} Dashboard</p>
               </div>
             </div>

@@ -49,6 +49,7 @@ export function AppSidebar() {
         { title: 'Assignments', url: '/assignments', icon: ClipboardList },
         { title: 'Grades', url: '/grades', icon: Award },
         { title: 'Materials', url: '/materials', icon: FileText },
+        { title: 'My Uploads', url: '/uploads', icon: Upload },
         { title: 'Forum', url: '/forum', icon: MessageSquare },
         { title: 'Carryover', url: '/carryover', icon: Calendar },
       ];

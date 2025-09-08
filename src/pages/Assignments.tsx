@@ -2,8 +2,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ClipboardList, Calendar, Clock, FileText } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { ClipboardList, Calendar, Clock, FileText, Upload } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -32,6 +32,8 @@ export default function Assignments() {
   const { toast } = useToast();
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [loading, setLoading] = useState(true);
+  const [uploadingFor, setUploadingFor] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     fetchAssignments();
@@ -75,6 +77,33 @@ export default function Assignments() {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const submitAssignmentFile = async (assignmentId: string, file: File) => {
+    if (!profile) return;
+    setUploadingFor(assignmentId);
+    try {
+      const folder = `submissions/${assignmentId}/${profile.id}`;
+      const path = `${folder}/${Date.now()}_${file.name}`;
+      const { error: uploadError } = await supabase.storage.from('user-uploads').upload(path, file, { upsert: false });
+      if (uploadError) throw uploadError;
+
+      const { data } = supabase.storage.from('user-uploads').getPublicUrl(path);
+      const publicUrl = data.publicUrl;
+
+      const { error: upsertError } = await supabase
+        .from('submissions')
+        .upsert({ assignment_id: assignmentId, student_id: profile.id, file_url: publicUrl }, { onConflict: 'assignment_id,student_id' });
+      if (upsertError) throw upsertError;
+
+      toast({ title: 'Submitted', description: 'Assignment file submitted.' });
+      await fetchAssignments();
+    } catch (error) {
+      toast({ title: 'Error', description: 'Submission failed.', variant: 'destructive' });
+    } finally {
+      setUploadingFor(null);
+      if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
@@ -179,14 +208,31 @@ export default function Assignments() {
                   </div>
                 </div>
 
-                <div className="flex gap-2">
+                <div className="flex gap-2 items-center">
                   <Button size="sm">
                     View Details
                   </Button>
                   {profile?.role === 'student' && (
-                    <Button variant="outline" size="sm">
-                      Submit Assignment
-                    </Button>
+                    <>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) submitAssignmentFile(assignment.id, file);
+                        }}
+                      />
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={uploadingFor === assignment.id}
+                      >
+                        <Upload className="h-4 w-4 mr-2" />
+                        {uploadingFor === assignment.id ? 'Uploading...' : 'Submit Assignment'}
+                      </Button>
+                    </>
                   )}
                 </div>
               </CardContent>

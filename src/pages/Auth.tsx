@@ -25,8 +25,7 @@ export default function Auth() {
     password: '',
     confirmPassword: '',
     firstName: '',
-    lastName: '',
-    role: 'student'
+    lastName: ''
   });
 
   const handleSignIn = async (e: React.FormEvent) => {
@@ -80,8 +79,7 @@ export default function Auth() {
         signUpData.password,
         {
           first_name: signUpData.firstName,
-          last_name: signUpData.lastName,
-          role: signUpData.role
+          last_name: signUpData.lastName
         }
       );
       
@@ -94,9 +92,7 @@ export default function Auth() {
       } else {
         toast({
           title: "Success",
-          description: signUpData.role === 'student' 
-            ? "Account created! Please wait for admin approval to access the platform."
-            : "Account created successfully! Please check your email to verify your account."
+          description: "Account created successfully! Please check your email to verify your account."
         });
         navigate('/dashboard');
       }
@@ -118,7 +114,7 @@ export default function Auth() {
           <div className="flex justify-center mb-4">
             <GraduationCap className="h-12 w-12 text-primary" />
           </div>
-          <CardTitle className="text-2xl font-bold">Nubapoly E-Learning</CardTitle>
+          <CardTitle className="text-2xl font-bold">SPY Elearning system</CardTitle>
           <CardDescription>
             Access your educational platform
           </CardDescription>
@@ -185,18 +181,7 @@ export default function Auth() {
                   </div>
                 </div>
                 
-                <div className="space-y-2">
-                  <Label htmlFor="role">Role</Label>
-                  <Select value={signUpData.role} onValueChange={(value) => setSignUpData({ ...signUpData, role: value })}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select your role" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="student">Student</SelectItem>
-                      <SelectItem value="lecturer">Lecturer</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                
                 
                 <div className="space-y-2">
                   <Label htmlFor="signup-email">Email</Label>
