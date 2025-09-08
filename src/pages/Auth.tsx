@@ -123,7 +123,7 @@ export default function Auth() {
           <div className="flex justify-center mb-4">
             <GraduationCap className="h-12 w-12 text-primary" />
           </div>
-          <CardTitle className="text-2xl font-bold">Nubapoly E-Learning</CardTitle>
+          <CardTitle className="text-2xl font-bold">SPY Learning</CardTitle>
           <CardDescription>
             Access your educational platform
           </CardDescription>
