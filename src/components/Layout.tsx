@@ -26,21 +26,6 @@ export function Layout({ children }: LayoutProps) {
     return <Navigate to="/auth" replace />;
   }
 
-  if (!profile.is_approved && profile.role === 'student') {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-muted/20">
-        <div className="text-center p-8 bg-card rounded-lg shadow-lg max-w-md">
-          <h2 className="text-2xl font-bold mb-4">Account Pending Approval</h2>
-          <p className="text-muted-foreground mb-6">
-            Your student account is awaiting admin approval. You'll receive access once your account has been reviewed and approved.
-          </p>
-          <Button onClick={signOut} variant="outline">
-            Sign Out
-          </Button>
-        </div>
-      </div>
-    );
-  }
 
   const getUserInitials = () => {
     return `${profile.first_name[0]}${profile.last_name[0]}`.toUpperCase();
