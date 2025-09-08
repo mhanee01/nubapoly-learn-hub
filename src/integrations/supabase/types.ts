@@ -14,6 +14,146 @@ export type Database = {
   }
   public: {
     Tables: {
+      book_recommendations: {
+        Row: {
+          based_on_book_id: string
+          created_at: string
+          id: string
+          recommendation_reason: string | null
+          recommended_book_id: string
+          similarity_score: number | null
+          user_id: string
+        }
+        Insert: {
+          based_on_book_id: string
+          created_at?: string
+          id?: string
+          recommendation_reason?: string | null
+          recommended_book_id: string
+          similarity_score?: number | null
+          user_id: string
+        }
+        Update: {
+          based_on_book_id?: string
+          created_at?: string
+          id?: string
+          recommendation_reason?: string | null
+          recommended_book_id?: string
+          similarity_score?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "book_recommendations_based_on_book_id_fkey"
+            columns: ["based_on_book_id"]
+            isOneToOne: false
+            referencedRelation: "books"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "book_recommendations_recommended_book_id_fkey"
+            columns: ["recommended_book_id"]
+            isOneToOne: false
+            referencedRelation: "books"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      books: {
+        Row: {
+          author: string | null
+          category: string | null
+          content_type: string | null
+          created_at: string
+          description: string | null
+          file_name: string | null
+          file_size: number | null
+          file_url: string | null
+          id: string
+          is_processed: boolean | null
+          summary: string | null
+          tags: string[] | null
+          title: string
+          updated_at: string
+          upload_date: string
+          user_id: string
+        }
+        Insert: {
+          author?: string | null
+          category?: string | null
+          content_type?: string | null
+          created_at?: string
+          description?: string | null
+          file_name?: string | null
+          file_size?: number | null
+          file_url?: string | null
+          id?: string
+          is_processed?: boolean | null
+          summary?: string | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+          upload_date?: string
+          user_id: string
+        }
+        Update: {
+          author?: string | null
+          category?: string | null
+          content_type?: string | null
+          created_at?: string
+          description?: string | null
+          file_name?: string | null
+          file_size?: number | null
+          file_url?: string | null
+          id?: string
+          is_processed?: boolean | null
+          summary?: string | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+          upload_date?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      flashcards: {
+        Row: {
+          answer: string
+          book_id: string
+          created_at: string
+          difficulty_level: number | null
+          id: string
+          question: string
+          user_id: string
+        }
+        Insert: {
+          answer: string
+          book_id: string
+          created_at?: string
+          difficulty_level?: number | null
+          id?: string
+          question: string
+          user_id: string
+        }
+        Update: {
+          answer?: string
+          book_id?: string
+          created_at?: string
+          difficulty_level?: number | null
+          id?: string
+          question?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "flashcards_book_id_fkey"
+            columns: ["book_id"]
+            isOneToOne: false
+            referencedRelation: "books"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -55,6 +195,94 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      quiz_questions: {
+        Row: {
+          book_id: string
+          correct_answer: string
+          created_at: string
+          explanation: string | null
+          id: string
+          options: Json
+          question: string
+          question_type: string | null
+          user_id: string
+        }
+        Insert: {
+          book_id: string
+          correct_answer: string
+          created_at?: string
+          explanation?: string | null
+          id?: string
+          options: Json
+          question: string
+          question_type?: string | null
+          user_id: string
+        }
+        Update: {
+          book_id?: string
+          correct_answer?: string
+          created_at?: string
+          explanation?: string | null
+          id?: string
+          options?: Json
+          question?: string
+          question_type?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quiz_questions_book_id_fkey"
+            columns: ["book_id"]
+            isOneToOne: false
+            referencedRelation: "books"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reading_progress: {
+        Row: {
+          book_id: string
+          created_at: string
+          id: string
+          last_read_at: string | null
+          notes: string | null
+          progress_percentage: number | null
+          rating: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          book_id: string
+          created_at?: string
+          id?: string
+          last_read_at?: string | null
+          notes?: string | null
+          progress_percentage?: number | null
+          rating?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          book_id?: string
+          created_at?: string
+          id?: string
+          last_read_at?: string | null
+          notes?: string | null
+          progress_percentage?: number | null
+          rating?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reading_progress_book_id_fkey"
+            columns: ["book_id"]
+            isOneToOne: false
+            referencedRelation: "books"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
