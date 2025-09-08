@@ -72,11 +72,6 @@ export function AppSidebar() {
       return [
         ...commonItems,
         { title: 'Users', url: '/users', icon: Users },
-        { title: 'Courses', url: '/all-courses', icon: BookOpen },
-        { title: 'Enrollments', url: '/enrollments', icon: GraduationCap },
-        { title: 'Analytics', url: '/analytics', icon: BarChart3 },
-        { title: 'Reports', url: '/reports', icon: FileText },
-        { title: 'Settings', url: '/settings', icon: Settings },
       ];
     }
 

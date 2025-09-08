@@ -2,27 +2,30 @@ import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { BookOpen, ClipboardList, Users, Award, Calendar, Bell } from 'lucide-react';
+import { Users, BarChart3, Settings, BookOpen, Upload } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Link } from 'react-router-dom';
+import { BookUpload } from '@/components/BookUpload';
+import { BookLibrary } from '@/components/BookLibrary';
 
 interface DashboardStats {
-  totalCourses: number;
-  totalAssignments: number;
   totalStudents: number;
-  recentAnnouncements: any[];
+  totalBooks: number;
+  totalFlashcards: number;
+  totalQuizzes: number;
 }
 
 export default function Dashboard() {
   const { profile } = useAuth();
   const [stats, setStats] = useState<DashboardStats>({
-    totalCourses: 0,
-    totalAssignments: 0,
     totalStudents: 0,
-    recentAnnouncements: []
+    totalBooks: 0,
+    totalFlashcards: 0,
+    totalQuizzes: 0
   });
   const [loading, setLoading] = useState(true);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   useEffect(() => {
     fetchDashboardData();
@@ -30,99 +33,47 @@ export default function Dashboard() {
 
   const fetchDashboardData = async () => {
     if (!profile) return;
-
+    
+    setLoading(true);
     try {
-      if (profile.role === 'student') {
-        // Fetch student dashboard data
-        const { data: enrollments } = await supabase
-          .from('enrollments')
-          .select('course_id, courses(*)')
-          .eq('student_id', profile.id);
-
-        const { data: assignments } = await supabase
-          .from('assignments')
-          .select('*')
-          .in('course_id', enrollments?.map(e => e.course_id) || []);
-
-        const { data: announcements } = await supabase
-          .from('announcements')
-          .select('*, courses(title)')
-          .in('course_id', enrollments?.map(e => e.course_id) || [])
-          .order('created_at', { ascending: false })
-          .limit(5);
-
-        setStats({
-          totalCourses: enrollments?.length || 0,
-          totalAssignments: assignments?.length || 0,
-          totalStudents: 0,
-          recentAnnouncements: announcements || []
-        });
-      } else if (profile.role === 'lecturer') {
-        // Fetch lecturer dashboard data
-        const { data: courses } = await supabase
-          .from('courses')
-          .select('*')
-          .eq('lecturer_id', profile.id);
-
-        const { data: assignments } = await supabase
-          .from('assignments')
-          .select('*')
-          .in('course_id', courses?.map(c => c.id) || []);
-
-        const { data: enrollments } = await supabase
-          .from('enrollments')
-          .select('student_id')
-          .in('course_id', courses?.map(c => c.id) || []);
-
-        const { data: announcements } = await supabase
-          .from('announcements')
-          .select('*, courses(title)')
-          .eq('lecturer_id', profile.id)
-          .order('created_at', { ascending: false })
-          .limit(5);
-
-        setStats({
-          totalCourses: courses?.length || 0,
-          totalAssignments: assignments?.length || 0,
-          totalStudents: new Set(enrollments?.map(e => e.student_id)).size || 0,
-          recentAnnouncements: announcements || []
-        });
-      } else if (profile.role === 'admin') {
-        // Fetch admin dashboard data
-        const { data: courses } = await supabase
-          .from('courses')
-          .select('*');
-
-        const { data: users } = await supabase
+      if (profile.role === 'admin') {
+        const { data: usersResult } = await supabase
           .from('profiles')
-          .select('*');
-
-        const { data: announcements } = await supabase
-          .from('announcements')
-          .select('*, courses(title), profiles(first_name, last_name)')
-          .order('created_at', { ascending: false })
-          .limit(5);
+          .select('id, role')
+          .eq('role', 'student');
 
         setStats({
-          totalCourses: courses?.length || 0,
-          totalAssignments: 0,
-          totalStudents: users?.filter(u => u.role === 'student').length || 0,
-          recentAnnouncements: announcements || []
+          totalStudents: usersResult?.length || 0,
+          totalBooks: 0,
+          totalFlashcards: 0,
+          totalQuizzes: 0
+        });
+      } else {
+        // Student dashboard - fetch student stats
+        const [booksResult, flashcardsResult, quizzesResult] = await Promise.all([
+          supabase.from('books').select('id').eq('user_id', profile.user_id),
+          supabase.from('flashcards').select('id').eq('user_id', profile.user_id),
+          supabase.from('quiz_questions').select('id').eq('user_id', profile.user_id)
+        ]);
+
+        setStats({
+          totalStudents: 0,
+          totalBooks: booksResult.data?.length || 0,
+          totalFlashcards: flashcardsResult.data?.length || 0,
+          totalQuizzes: quizzesResult.data?.length || 0
         });
       }
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
+      setStats({
+        totalStudents: 0,
+        totalBooks: 0,
+        totalFlashcards: 0,
+        totalQuizzes: 0
+      });
     } finally {
       setLoading(false);
     }
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
   };
 
   if (loading) {
@@ -141,45 +92,16 @@ export default function Dashboard() {
           Welcome back, {profile?.first_name}!
         </h1>
         <p className="text-muted-foreground">
-          Here's what's happening in your {profile?.role} dashboard today.
+          Here's your {profile?.role} dashboard.
         </p>
       </div>
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              {profile?.role === 'student' ? 'Enrolled Courses' : 
-               profile?.role === 'lecturer' ? 'My Courses' : 'Total Courses'}
-            </CardTitle>
-            <BookOpen className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalCourses}</div>
-          </CardContent>
-        </Card>
-
-        {profile?.role !== 'admin' && (
+        {profile?.role === 'admin' && (
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                {profile?.role === 'student' ? 'Assignments' : 'Created Assignments'}
-              </CardTitle>
-              <ClipboardList className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.totalAssignments}</div>
-            </CardContent>
-          </Card>
-        )}
-
-        {profile?.role !== 'student' && (
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                {profile?.role === 'lecturer' ? 'Total Students' : 'Registered Students'}
-              </CardTitle>
+              <CardTitle className="text-sm font-medium">Registered Students</CardTitle>
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -187,104 +109,100 @@ export default function Dashboard() {
             </CardContent>
           </Card>
         )}
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Recent Announcements</CardTitle>
-            <Bell className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.recentAnnouncements.length}</div>
-          </CardContent>
-        </Card>
+        
+        {profile?.role === 'student' && (
+          <>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">My Books</CardTitle>
+                <BookOpen className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stats.totalBooks}</div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Flashcards</CardTitle>
+                <BarChart3 className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stats.totalFlashcards}</div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Quiz Questions</CardTitle>
+                <Settings className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stats.totalQuizzes}</div>
+              </CardContent>
+            </Card>
+          </>
+        )}
       </div>
 
-      {/* Quick Actions */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
-          <CardDescription>
-            Frequently used actions for your dashboard
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex gap-4 flex-wrap">
-            {profile?.role === 'student' && (
-              <>
-                <Button asChild>
-                  <Link to="/courses">Browse Courses</Link>
-                </Button>
-                <Button variant="outline" asChild>
-                  <Link to="/assignments">View Assignments</Link>
-                </Button>
-                <Button variant="outline" asChild>
-                  <Link to="/grades">Check Grades</Link>
-                </Button>
-              </>
-            )}
+      {/* Student Features */}
+      {profile?.role === 'student' && (
+        <div className="space-y-6">
+          <div className="grid gap-6 lg:grid-cols-2">
+            <BookUpload onUploadSuccess={() => {
+              setRefreshTrigger(prev => prev + 1);
+              fetchDashboardData();
+            }} />
             
-            {profile?.role === 'lecturer' && (
-              <>
-                <Button asChild>
-                  <Link to="/create-course">Create Course</Link>
-                </Button>
-                <Button variant="outline" asChild>
-                  <Link to="/manage-assignments">Manage Assignments</Link>
-                </Button>
-                <Button variant="outline" asChild>
-                  <Link to="/upload-materials">Upload Materials</Link>
-                </Button>
-              </>
-            )}
-            
-            {profile?.role === 'admin' && (
-              <>
-                <Button asChild>
-                  <Link to="/users">Manage Users</Link>
-                </Button>
-                <Button variant="outline" asChild>
-                  <Link to="/all-courses">View All Courses</Link>
-                </Button>
-                <Button variant="outline" asChild>
-                  <Link to="/analytics">View Analytics</Link>
-                </Button>
-              </>
-            )}
+            <Card>
+              <CardHeader>
+                <CardTitle>Quick Actions</CardTitle>
+                <CardDescription>
+                  Manage your learning materials
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <p className="text-sm text-muted-foreground mb-4">
+                  Upload books and let AI create summaries, flashcards, and quizzes for enhanced learning.
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  <Badge variant="outline">AI-Powered Summaries</Badge>
+                  <Badge variant="outline">Smart Flashcards</Badge>
+                  <Badge variant="outline">Interactive Quizzes</Badge>
+                  <Badge variant="outline">Book Recommendations</Badge>
+                </div>
+              </CardContent>
+            </Card>
           </div>
-        </CardContent>
-      </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle>My Library</CardTitle>
+              <CardDescription>
+                View and manage your uploaded books
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <BookLibrary refreshTrigger={refreshTrigger} />
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
-      {/* Recent Announcements */}
-      {stats.recentAnnouncements.length > 0 && (
+      {/* Admin Features */}
+      {profile?.role === 'admin' && (
         <Card>
           <CardHeader>
-            <CardTitle>Recent Announcements</CardTitle>
+            <CardTitle>Quick Actions</CardTitle>
             <CardDescription>
-              Latest updates and announcements
+              Administrative functions
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {stats.recentAnnouncements.map((announcement) => (
-                <div key={announcement.id} className="flex items-start space-x-4 p-4 border rounded-lg">
-                  <Bell className="h-5 w-5 text-primary mt-0.5" />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h4 className="font-semibold">{announcement.title}</h4>
-                      {announcement.is_pinned && (
-                        <Badge variant="secondary">Pinned</Badge>
-                      )}
-                    </div>
-                    <p className="text-sm text-muted-foreground mb-2">
-                      {announcement.content}
-                    </p>
-                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                      <span>{announcement.courses?.title}</span>
-                      <span>{formatDate(announcement.created_at)}</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
+            <div className="flex gap-4 flex-wrap">
+              <Button asChild>
+                <Link to="/users">Manage Users</Link>
+              </Button>
             </div>
           </CardContent>
         </Card>

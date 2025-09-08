@@ -15,7 +15,7 @@ interface User {
   email: string;
   first_name: string;
   last_name: string;
-  role: 'student' | 'lecturer' | 'admin';
+  role: 'student' | 'admin';
   is_approved: boolean;
   created_at: string;
 }
@@ -125,7 +125,6 @@ export default function Users() {
   const getRoleBadgeVariant = (role: string) => {
     switch (role) {
       case 'admin': return 'destructive';
-      case 'lecturer': return 'default';
       case 'student': return 'secondary';
       default: return 'outline';
     }
@@ -187,7 +186,6 @@ export default function Users() {
               <SelectContent>
                 <SelectItem value="all">All Roles</SelectItem>
                 <SelectItem value="student">Students</SelectItem>
-                <SelectItem value="lecturer">Lecturers</SelectItem>
                 <SelectItem value="admin">Administrators</SelectItem>
               </SelectContent>
             </Select>
