@@ -14,305 +14,142 @@ export type Database = {
   }
   public: {
     Tables: {
-      announcements: {
+      book_recommendations: {
         Row: {
-          content: string
-          course_id: string
+          based_on_book_id: string
           created_at: string
           id: string
-          is_pinned: boolean
-          lecturer_id: string
-          title: string
+          recommendation_reason: string | null
+          recommended_book_id: string
+          similarity_score: number | null
+          user_id: string
         }
         Insert: {
-          content: string
-          course_id: string
+          based_on_book_id: string
           created_at?: string
           id?: string
-          is_pinned?: boolean
-          lecturer_id: string
-          title: string
+          recommendation_reason?: string | null
+          recommended_book_id: string
+          similarity_score?: number | null
+          user_id: string
         }
         Update: {
-          content?: string
-          course_id?: string
+          based_on_book_id?: string
           created_at?: string
           id?: string
-          is_pinned?: boolean
-          lecturer_id?: string
-          title?: string
+          recommendation_reason?: string | null
+          recommended_book_id?: string
+          similarity_score?: number | null
+          user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "announcements_course_id_fkey"
-            columns: ["course_id"]
+            foreignKeyName: "book_recommendations_based_on_book_id_fkey"
+            columns: ["based_on_book_id"]
             isOneToOne: false
-            referencedRelation: "courses"
+            referencedRelation: "books"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "announcements_lecturer_id_fkey"
-            columns: ["lecturer_id"]
+            foreignKeyName: "book_recommendations_recommended_book_id_fkey"
+            columns: ["recommended_book_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "books"
             referencedColumns: ["id"]
           },
         ]
       }
-      assignments: {
+      books: {
         Row: {
-          course_id: string
-          created_at: string
-          description: string | null
-          due_date: string | null
-          id: string
-          max_points: number
-          title: string
-          type: string
-          updated_at: string
-        }
-        Insert: {
-          course_id: string
-          created_at?: string
-          description?: string | null
-          due_date?: string | null
-          id?: string
-          max_points?: number
-          title: string
-          type?: string
-          updated_at?: string
-        }
-        Update: {
-          course_id?: string
-          created_at?: string
-          description?: string | null
-          due_date?: string | null
-          id?: string
-          max_points?: number
-          title?: string
-          type?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "assignments_course_id_fkey"
-            columns: ["course_id"]
-            isOneToOne: false
-            referencedRelation: "courses"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      courses: {
-        Row: {
-          code: string
-          created_at: string
-          credits: number
-          description: string | null
-          id: string
-          is_active: boolean
-          lecturer_id: string
-          title: string
-          updated_at: string
-        }
-        Insert: {
-          code: string
-          created_at?: string
-          credits?: number
-          description?: string | null
-          id?: string
-          is_active?: boolean
-          lecturer_id: string
-          title: string
-          updated_at?: string
-        }
-        Update: {
-          code?: string
-          created_at?: string
-          credits?: number
-          description?: string | null
-          id?: string
-          is_active?: boolean
-          lecturer_id?: string
-          title?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "courses_lecturer_id_fkey"
-            columns: ["lecturer_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      enrollments: {
-        Row: {
-          course_id: string
-          enrollment_date: string
-          final_grade: number | null
-          id: string
-          status: string
-          student_id: string
-        }
-        Insert: {
-          course_id: string
-          enrollment_date?: string
-          final_grade?: number | null
-          id?: string
-          status?: string
-          student_id: string
-        }
-        Update: {
-          course_id?: string
-          enrollment_date?: string
-          final_grade?: number | null
-          id?: string
-          status?: string
-          student_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "enrollments_course_id_fkey"
-            columns: ["course_id"]
-            isOneToOne: false
-            referencedRelation: "courses"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "enrollments_student_id_fkey"
-            columns: ["student_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      forum_discussions: {
-        Row: {
-          author_id: string
-          content: string
-          course_id: string
-          created_at: string
-          id: string
-          is_pinned: boolean
-          title: string
-          updated_at: string
-        }
-        Insert: {
-          author_id: string
-          content: string
-          course_id: string
-          created_at?: string
-          id?: string
-          is_pinned?: boolean
-          title: string
-          updated_at?: string
-        }
-        Update: {
-          author_id?: string
-          content?: string
-          course_id?: string
-          created_at?: string
-          id?: string
-          is_pinned?: boolean
-          title?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "forum_discussions_author_id_fkey"
-            columns: ["author_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "forum_discussions_course_id_fkey"
-            columns: ["course_id"]
-            isOneToOne: false
-            referencedRelation: "courses"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      forum_replies: {
-        Row: {
-          author_id: string
-          content: string
-          created_at: string
-          discussion_id: string
-          id: string
-          updated_at: string
-        }
-        Insert: {
-          author_id: string
-          content: string
-          created_at?: string
-          discussion_id: string
-          id?: string
-          updated_at?: string
-        }
-        Update: {
-          author_id?: string
-          content?: string
-          created_at?: string
-          discussion_id?: string
-          id?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "forum_replies_author_id_fkey"
-            columns: ["author_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "forum_replies_discussion_id_fkey"
-            columns: ["discussion_id"]
-            isOneToOne: false
-            referencedRelation: "forum_discussions"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      learning_materials: {
-        Row: {
-          course_id: string
+          author: string | null
+          category: string | null
+          content_type: string | null
           created_at: string
           description: string | null
-          file_type: string
-          file_url: string
+          file_name: string | null
+          file_size: number | null
+          file_url: string | null
           id: string
+          is_processed: boolean | null
+          summary: string | null
+          tags: string[] | null
           title: string
+          updated_at: string
+          upload_date: string
+          user_id: string
         }
         Insert: {
-          course_id: string
+          author?: string | null
+          category?: string | null
+          content_type?: string | null
           created_at?: string
           description?: string | null
-          file_type: string
-          file_url: string
+          file_name?: string | null
+          file_size?: number | null
+          file_url?: string | null
           id?: string
+          is_processed?: boolean | null
+          summary?: string | null
+          tags?: string[] | null
           title: string
+          updated_at?: string
+          upload_date?: string
+          user_id: string
         }
         Update: {
-          course_id?: string
+          author?: string | null
+          category?: string | null
+          content_type?: string | null
           created_at?: string
           description?: string | null
-          file_type?: string
-          file_url?: string
+          file_name?: string | null
+          file_size?: number | null
+          file_url?: string | null
           id?: string
+          is_processed?: boolean | null
+          summary?: string | null
+          tags?: string[] | null
           title?: string
+          updated_at?: string
+          upload_date?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      flashcards: {
+        Row: {
+          answer: string
+          book_id: string
+          created_at: string
+          difficulty_level: number | null
+          id: string
+          question: string
+          user_id: string
+        }
+        Insert: {
+          answer: string
+          book_id: string
+          created_at?: string
+          difficulty_level?: number | null
+          id?: string
+          question: string
+          user_id: string
+        }
+        Update: {
+          answer?: string
+          book_id?: string
+          created_at?: string
+          difficulty_level?: number | null
+          id?: string
+          question?: string
+          user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "learning_materials_course_id_fkey"
-            columns: ["course_id"]
+            foreignKeyName: "flashcards_book_id_fkey"
+            columns: ["book_id"]
             isOneToOne: false
-            referencedRelation: "courses"
+            referencedRelation: "books"
             referencedColumns: ["id"]
           },
         ]
@@ -359,53 +196,90 @@ export type Database = {
         }
         Relationships: []
       }
-      submissions: {
+      quiz_questions: {
         Row: {
-          assignment_id: string
-          content: string | null
-          feedback: string | null
-          file_url: string | null
-          grade: number | null
-          graded_at: string | null
+          book_id: string
+          correct_answer: string
+          created_at: string
+          explanation: string | null
           id: string
-          student_id: string
-          submitted_at: string
+          options: Json
+          question: string
+          question_type: string | null
+          user_id: string
         }
         Insert: {
-          assignment_id: string
-          content?: string | null
-          feedback?: string | null
-          file_url?: string | null
-          grade?: number | null
-          graded_at?: string | null
+          book_id: string
+          correct_answer: string
+          created_at?: string
+          explanation?: string | null
           id?: string
-          student_id: string
-          submitted_at?: string
+          options: Json
+          question: string
+          question_type?: string | null
+          user_id: string
         }
         Update: {
-          assignment_id?: string
-          content?: string | null
-          feedback?: string | null
-          file_url?: string | null
-          grade?: number | null
-          graded_at?: string | null
+          book_id?: string
+          correct_answer?: string
+          created_at?: string
+          explanation?: string | null
           id?: string
-          student_id?: string
-          submitted_at?: string
+          options?: Json
+          question?: string
+          question_type?: string | null
+          user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "submissions_assignment_id_fkey"
-            columns: ["assignment_id"]
+            foreignKeyName: "quiz_questions_book_id_fkey"
+            columns: ["book_id"]
             isOneToOne: false
-            referencedRelation: "assignments"
+            referencedRelation: "books"
             referencedColumns: ["id"]
           },
+        ]
+      }
+      reading_progress: {
+        Row: {
+          book_id: string
+          created_at: string
+          id: string
+          last_read_at: string | null
+          notes: string | null
+          progress_percentage: number | null
+          rating: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          book_id: string
+          created_at?: string
+          id?: string
+          last_read_at?: string | null
+          notes?: string | null
+          progress_percentage?: number | null
+          rating?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          book_id?: string
+          created_at?: string
+          id?: string
+          last_read_at?: string | null
+          notes?: string | null
+          progress_percentage?: number | null
+          rating?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
           {
-            foreignKeyName: "submissions_student_id_fkey"
-            columns: ["student_id"]
+            foreignKeyName: "reading_progress_book_id_fkey"
+            columns: ["book_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "books"
             referencedColumns: ["id"]
           },
         ]
@@ -415,13 +289,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      get_user_role: {
-        Args: { user_uuid: string }
-        Returns: Database["public"]["Enums"]["user_role"]
+      is_admin: {
+        Args: { check_user_id: string }
+        Returns: boolean
       }
     }
     Enums: {
-      user_role: "student" | "lecturer" | "admin"
+      user_role: "student" | "admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -549,7 +423,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      user_role: ["student", "lecturer", "admin"],
+      user_role: ["student", "admin"],
     },
   },
 } as const

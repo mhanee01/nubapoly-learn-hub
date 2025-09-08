@@ -29,12 +29,12 @@ const Index = () => {
           </div>
           
           <h1 className="text-5xl md:text-6xl font-bold mb-6">
-            Nubapoly E-Learning System
+            SPY Learning System
           </h1>
           
           <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-2xl mx-auto">
-            A comprehensive learning management system designed for students, lecturers, and administrators. 
-            Access courses, submit assignments, and track your academic progress.
+            Smart Personal Yield - An intelligent learning system that adapts to your reading habits. 
+            Upload books, get AI-powered summaries, flashcards, and personalized recommendations.
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -12,8 +12,15 @@ import { Loader2, GraduationCap } from 'lucide-react';
 
 export default function Auth() {
   const [loading, setLoading] = useState(false);
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, user, session, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+
+  // Redirect to dashboard when user is authenticated
+  useEffect(() => {
+    if (user && session && !authLoading) {
+      navigate('/dashboard');
+    }
+  }, [user, session, authLoading, navigate]);
 
   const [signInData, setSignInData] = useState({
     email: '',
@@ -42,12 +49,13 @@ export default function Auth() {
           description: error.message,
           variant: "destructive"
         });
+        setLoading(false);
       } else {
         toast({
           title: "Success",
           description: "Signed in successfully!"
         });
-        navigate('/dashboard');
+        // Don't navigate here - let the auth state change handle it
       }
     } catch (error) {
       toast({
@@ -55,7 +63,6 @@ export default function Auth() {
         description: "An unexpected error occurred",
         variant: "destructive"
       });
-    } finally {
       setLoading(false);
     }
   };
@@ -91,14 +98,13 @@ export default function Auth() {
           description: error.message,
           variant: "destructive"
         });
+        setLoading(false);
       } else {
         toast({
           title: "Success",
-          description: signUpData.role === 'student' 
-            ? "Account created! Please wait for admin approval to access the platform."
-            : "Account created successfully! Please check your email to verify your account."
+          description: "Account created successfully! You can now sign in to access the platform."
         });
-        navigate('/dashboard');
+        // Let the auth state change handle navigation
       }
     } catch (error) {
       toast({
@@ -106,7 +112,6 @@ export default function Auth() {
         description: "An unexpected error occurred",
         variant: "destructive"
       });
-    } finally {
       setLoading(false);
     }
   };
@@ -118,7 +123,7 @@ export default function Auth() {
           <div className="flex justify-center mb-4">
             <GraduationCap className="h-12 w-12 text-primary" />
           </div>
-          <CardTitle className="text-2xl font-bold">Nubapoly E-Learning</CardTitle>
+          <CardTitle className="text-2xl font-bold">SPY Learning</CardTitle>
           <CardDescription>
             Access your educational platform
           </CardDescription>
@@ -193,7 +198,6 @@ export default function Auth() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="student">Student</SelectItem>
-                      <SelectItem value="lecturer">Lecturer</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

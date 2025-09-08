@@ -22,8 +22,14 @@ export function Layout({ children }: LayoutProps) {
     );
   }
 
-  if (!user || !profile) {
-    return <Navigate to="/auth" replace />;
+  // The ProtectedRoute component already handles authentication check
+  // but we still need to check for profile since that's loaded separately
+  if (!profile) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
   }
 
 
@@ -41,7 +47,7 @@ export function Layout({ children }: LayoutProps) {
             <div className="flex items-center gap-4">
               <SidebarTrigger />
               <div>
-                <h1 className="font-semibold">Nubapoly E-Learning System</h1>
+                <h1 className="font-semibold">SPY Learning System</h1>
                 <p className="text-sm text-muted-foreground capitalize">{profile.role} Dashboard</p>
               </div>
             </div>
