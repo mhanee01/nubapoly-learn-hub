@@ -29,11 +29,11 @@ const Index = () => {
           </div>
           
           <h1 className="text-5xl md:text-6xl font-bold mb-6">
-            SPY Learning System
+            E-Learning Recommendation System
           </h1>
           
           <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-2xl mx-auto">
-            Smart Personal Yield - An intelligent learning system that adapts to your reading habits. 
+            An intelligent learning platform that transforms your reading experience. 
             Upload books, get AI-powered summaries, flashcards, and personalized recommendations.
           </p>
           

@@ -15,15 +15,10 @@ import {
   Home,
   BookOpen,
   Users,
-  FileText,
-  MessageSquare,
-  BarChart3,
-  Settings,
-  GraduationCap,
-  ClipboardList,
   Upload,
-  Calendar,
-  Award
+  Library,
+  UserIcon,
+  BarChart3,
 } from 'lucide-react';
 
 export function AppSidebar() {
@@ -40,12 +35,15 @@ export function AppSidebar() {
   const getNavigationItems = () => {
     const commonItems = [
       { title: 'Dashboard', url: '/dashboard', icon: Home },
+      { title: 'Profile', url: '/profile', icon: UserIcon },
     ];
 
     if (profile?.role === 'student') {
       return [
         ...commonItems,
-        // Student-only features can be added here in the future
+        { title: 'View Books', url: '/books', icon: BookOpen },
+        { title: 'Upload Book', url: '/upload', icon: Upload },
+        { title: 'Library', url: '/library', icon: Library },
       ];
     }
 
@@ -53,6 +51,10 @@ export function AppSidebar() {
       return [
         ...commonItems,
         { title: 'Users', url: '/users', icon: Users },
+        { title: 'Analytics', url: '/analytics', icon: BarChart3 },
+        { title: 'View Books', url: '/books', icon: BookOpen },
+        { title: 'Upload Book', url: '/upload', icon: Upload },
+        { title: 'Library', url: '/library', icon: Library },
       ];
     }
 
@@ -65,7 +67,9 @@ export function AppSidebar() {
     <Sidebar className={state === 'collapsed' ? 'w-14' : 'w-64'} collapsible="icon">
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+          <SidebarGroupLabel>
+            {profile?.role === 'admin' ? 'Admin Panel' : 'Student Portal'}
+          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {navigationItems.map((item) => (

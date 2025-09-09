@@ -47,7 +47,7 @@ export function Layout({ children }: LayoutProps) {
             <div className="flex items-center gap-4">
               <SidebarTrigger />
               <div>
-                <h1 className="font-semibold">SPY Learning System</h1>
+                <h1 className="font-semibold">E-Learning System</h1>
                 <p className="text-sm text-muted-foreground capitalize">{profile.role} Dashboard</p>
               </div>
             </div>

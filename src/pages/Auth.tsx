@@ -87,8 +87,7 @@ export default function Auth() {
         signUpData.password,
         {
           first_name: signUpData.firstName,
-          last_name: signUpData.lastName,
-          role: signUpData.role
+          last_name: signUpData.lastName
         }
       );
       
@@ -123,7 +122,7 @@ export default function Auth() {
           <div className="flex justify-center mb-4">
             <GraduationCap className="h-12 w-12 text-primary" />
           </div>
-          <CardTitle className="text-2xl font-bold">SPY Learning</CardTitle>
+          <CardTitle className="text-2xl font-bold">E-Learning System</CardTitle>
           <CardDescription>
             Access your educational platform
           </CardDescription>
@@ -190,17 +189,6 @@ export default function Auth() {
                   </div>
                 </div>
                 
-                <div className="space-y-2">
-                  <Label htmlFor="role">Role</Label>
-                  <Select value={signUpData.role} onValueChange={(value) => setSignUpData({ ...signUpData, role: value })}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select your role" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="student">Student</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
                 
                 <div className="space-y-2">
                   <Label htmlFor="signup-email">Email</Label>
